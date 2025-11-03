@@ -13,15 +13,26 @@ Thumbs.db
 *.tmp
 *.log
 
-# Project metadata and development files
-/tests/
-/docker/
+# Project metadata and development files (untracked)
 /docs/
-/gnu-ed-source/
 /fuzz/
 /.claude/
 CLAUDE.md
 PRD.md
 /benches/
 /prompts/
-justfile
+
+# Test files - only track differential testing framework
+/tests/legacy/
+/tests/security/
+/tests/archive/
+/tests/fixtures/
+/tests/reference_alignment/
+/tests/differential.proptest-regressions
+/tests/test_reference_alignment.rs
+
+# GNU ed source - only track the tarball for reproducibility
+/gnu-ed-source/ed-1.22.2/
+/gnu-ed-source/tests/
+/gnu-ed-source/prompts/
+/gnu-ed-source/docs/

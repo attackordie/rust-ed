@@ -1,0 +1,93 @@
+# Drop-In Replacement Test Container
+# This Dockerfile creates a container with BOTH GNU ed and rust-ed
+# allowing us to test true drop-in replacement by swapping binaries
+
+FROM ubuntu:22.04
+
+# Install build tools for both GNU ed and Rust
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    lzip \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Step 1: Build and install GNU ed 1.22.2 (original)
+WORKDIR /tmp
+RUN wget https://ftp.gnu.org/gnu/ed/ed-1.22.2.tar.lz \
+    && lzip -d ed-1.22.2.tar.lz \
+    && tar -xf ed-1.22.2.tar \
+    && cd ed-1.22.2 \
+    && ./configure \
+    && make \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/ed-1.22.2*
+
+# Verify GNU ed is installed at /usr/local/bin/ed
+RUN which ed && ed --version && ls -la /usr/local/bin/ed
+
+# Step 2: Install Rust (for building rust-ed in container)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Step 3: Copy rust-ed source and build it
+WORKDIR /build/rust-ed
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+COPY tests ./tests
+
+# Build rust-ed in release mode
+RUN cargo build --release
+
+# Step 4: Backup original GNU ed and prepare for swap
+RUN cp /usr/local/bin/ed /usr/local/bin/ed-gnu-original \
+    && cp /build/rust-ed/target/release/rust-ed /usr/local/bin/rust-ed-binary
+
+# Create swap script for easy testing
+RUN cat > /usr/local/bin/use-gnu-ed <<'EOF'
+#!/bin/bash
+cp /usr/local/bin/ed-gnu-original /usr/local/bin/ed
+echo "✅ Switched to GNU ed"
+ed --version 2>&1 | head -1
+EOF
+
+RUN cat > /usr/local/bin/use-rust-ed <<'EOF'
+#!/bin/bash
+cp /usr/local/bin/rust-ed-binary /usr/local/bin/ed
+echo "✅ Switched to rust-ed"
+ed --version 2>&1 | head -1
+EOF
+
+RUN chmod +x /usr/local/bin/use-gnu-ed /usr/local/bin/use-rust-ed
+
+# Create test user matching host UID
+RUN useradd -u 1000 -m testuser && \
+    mkdir -p /tmp && \
+    chmod 1777 /tmp && \
+    chown -R testuser:testuser /build
+
+# Copy swap scripts for testuser
+RUN cp /usr/local/bin/use-gnu-ed /home/testuser/ && \
+    cp /usr/local/bin/use-rust-ed /home/testuser/ && \
+    chmod +x /home/testuser/use-*
+
+USER testuser
+WORKDIR /home/testuser
+
+# Default: Start with GNU ed (for baseline)
+RUN sudo cp /usr/local/bin/ed-gnu-original /usr/local/bin/ed 2>/dev/null || true
+
+# Provide helper to show which version is active
+RUN cat > /home/testuser/check-version <<'EOF'
+#!/bin/bash
+echo "Current ed binary:"
+ls -la /usr/local/bin/ed
+echo ""
+/usr/local/bin/ed --version 2>&1 | head -1
+EOF
+RUN chmod +x /home/testuser/check-version
+
+# Default entrypoint: ed (whichever is installed)
+ENTRYPOINT ["/usr/local/bin/ed"]

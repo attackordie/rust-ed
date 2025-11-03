@@ -1,0 +1,49 @@
+# rust-ed container - Same base as GNU ed for fair comparison
+# This creates an rust-ed image with IDENTICAL environment to gnu-ed
+# Only difference: /usr/local/bin/ed is the Rust version instead of C version
+
+FROM ubuntu:22.04 AS builder
+
+# Install Rust build tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Build rust-ed
+WORKDIR /build
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+# Note: We don't need benches/ or tests/ for the final binary
+
+# Remove benchmark entry from Cargo.toml to avoid missing file error
+RUN sed -i '/\[\[bench\]\]/,/harness = false/d' Cargo.toml
+
+# Build release binary
+RUN cargo build --release --bin rust-ed
+
+# Runtime stage - SAME base as gnu-ed for identical environment
+FROM ubuntu:22.04
+
+# Copy ONLY the rust-ed binary (no Rust toolchain in final image)
+COPY --from=builder /build/target/release/rust-ed /usr/local/bin/ed
+
+# Create user matching host UID (1000) - SAME as gnu-ed container
+RUN useradd -u 1000 -m testuser && \
+    mkdir -p /tmp && \
+    chmod 1777 /tmp
+
+# Verify installation
+RUN which ed && ls -la /usr/local/bin/ed
+
+# Run as testuser - SAME as gnu-ed container
+USER testuser
+WORKDIR /home/testuser
+
+# SAME entrypoint as gnu-ed container
+ENTRYPOINT ["/usr/local/bin/ed"]

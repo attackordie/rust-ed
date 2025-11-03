@@ -1,0 +1,22 @@
+# Test runner container with Rust tooling and Docker for differential testing
+FROM rust:1.75
+
+# Install Docker and testing tools
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    strace \
+    valgrind \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy project files
+COPY . .
+
+# Build the Rust implementation
+RUN cargo build --release
+
+# Default command runs comprehensive differential tests
+CMD ["cargo", "test", "--test", "differential", "--", "--nocapture"]

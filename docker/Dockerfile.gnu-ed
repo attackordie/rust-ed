@@ -1,0 +1,67 @@
+# GNU ed reference container - ISOLATED environment
+# Contains ONLY GNU ed 1.22.2 with no Rust, Python, or other tools
+# This ensures pure GNU ed behavior for differential testing
+#
+# Build strategy: Try local source first, fall back to remote download
+# This ensures reproducibility while allowing offline builds
+
+FROM ubuntu:22.04
+
+# Install build tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    lzip \
+    ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+
+# Copy local source if available (supports both .tar and .tar.lz)
+COPY gnu-ed-source/ed-1.22.2.tar* /tmp/ 2>/dev/null || true
+
+# Build from local source if available, otherwise download
+RUN set -ex; \
+    if [ -f ed-1.22.2.tar ]; then \
+        echo "✓ Building from local source (ed-1.22.2.tar)"; \
+        tar -xf ed-1.22.2.tar; \
+    elif [ -f ed-1.22.2.tar.lz ]; then \
+        echo "✓ Building from local compressed source (ed-1.22.2.tar.lz)"; \
+        lzip -d ed-1.22.2.tar.lz && tar -xf ed-1.22.2.tar; \
+    else \
+        echo "⚠ Local source not found, downloading from GNU mirror..."; \
+        wget https://ftp.gnu.org/gnu/ed/ed-1.22.2.tar.lz && \
+        lzip -d ed-1.22.2.tar.lz && \
+        tar -xf ed-1.22.2.tar; \
+    fi
+
+# Verify we have the correct version (checksum verification)
+# SHA256: 679550dad6e2df4a7960d09da90cec65bbd22f379bf9ae6348ce662ed05ab1bd
+RUN if [ -f ed-1.22.2.tar ]; then \
+        echo "679550dad6e2df4a7960d09da90cec65bbd22f379bf9ae6348ce662ed05ab1bd  ed-1.22.2.tar" | sha256sum -c - || \
+        echo "⚠ Warning: Checksum verification failed - proceeding anyway"; \
+    fi
+
+# Build and install GNU ed 1.22.2
+RUN cd ed-1.22.2 \
+    && ./configure \
+    && make \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/ed-1.22.2*
+
+# Create user matching host UID (1000) - SAME as rust-ed container
+RUN useradd -u 1000 -m testuser && \
+    mkdir -p /tmp && \
+    chmod 1777 /tmp
+
+# Verify GNU ed installation
+RUN which ed && ed --version
+
+# Run as testuser - SAME as rust-ed container
+USER testuser
+WORKDIR /home/testuser
+
+# Set ed as default entrypoint (compiled from source goes to /usr/local/bin)
+ENTRYPOINT ["/usr/local/bin/ed"]

@@ -1,0 +1,31 @@
+GNU ed 1.22.2
+===============
+
+Released: August 18, 2025
+Source: https://ftp.gnu.org/gnu/ed/ed-1.22.2.tar.lz
+Mirror: https://mirror.team-cymru.com/gnu/ed/
+
+File: ed-1.22.2.tar
+SHA256: 679550dad6e2df4a7960d09da90cec65bbd22f379bf9ae6348ce662ed05ab1bd
+
+This is the reference implementation used for differential testing.
+All rust-ed behavior must match this version exactly.
+
+## Verification
+
+To verify the tarball integrity:
+```bash
+cd gnu-ed-source
+sha256sum -c <<EOF
+679550dad6e2df4a7960d09da90cec65bbd22f379bf9ae6348ce662ed05ab1bd  ed-1.22.2.tar
+EOF
+```
+
+## Build from Source
+
+The Docker build process automatically uses this local source:
+```bash
+docker build -f docker/Dockerfile.gnu-ed -t gnu-ed:latest .
+```
+
+If the local source is unavailable, it will automatically download from the GNU mirror.
