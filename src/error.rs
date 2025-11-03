@@ -1,4 +1,4 @@
-/// Error handling for ed-rust - must match GNU ed error behavior exactly
+/// Error handling for rust-ed - must match GNU ed error behavior exactly
 
 #[derive(Debug, thiserror::Error)]
 pub enum EdError {

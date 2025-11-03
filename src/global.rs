@@ -9,7 +9,7 @@
 use std::sync::Mutex;
 
 // Safe Rust replacement for C's dynamic array of line_node pointers
-// In ed-rust we use line indices instead of pointers since our buffer is Vec-based
+// In rust-ed we use line indices instead of pointers since our buffer is Vec-based
 static ACTIVE_LIST: Mutex<Vec<Option<usize>>> = Mutex::new(Vec::new());
 static ACTIVE_IDX: Mutex<usize> = Mutex::new(0);    // current iteration index
 static ACTIVE_IDXM: Mutex<usize> = Mutex::new(0);   // modulo index for removal
