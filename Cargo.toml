@@ -1,0 +1,39 @@
+[package]
+name = "ed-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Memory-safe, 100% drop-in replacement for GNU ed"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/attackordie/ed-rust"
+readme = "README.md"
+publish = false  # Do not publish to crates.io
+
+[[bin]]
+name = "ed-rust"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+regex = "1.10"
+thiserror = "1.0"
+nix = "0.27"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.8"
+criterion = "0.5"
+proptest = "1.4"
+rand = "0.8"
+libc = "0.2"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+opt-level = "z"  # Optimize for size to match GNU ed
+panic = "abort"  # Smaller panic handler
+
+[[bench]]
+name = "performance"
+harness = false
