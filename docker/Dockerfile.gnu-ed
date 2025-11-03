@@ -2,7 +2,7 @@
 # Contains ONLY GNU ed 1.22.2 with no Rust, Python, or other tools
 # This ensures pure GNU ed behavior for differential testing
 #
-# Build strategy: Try local source first, fall back to remote download
+# Build strategy: Copy local source, fall back to remote download if build fails
 # This ensures reproducibility while allowing offline builds
 
 FROM ubuntu:22.04
@@ -18,19 +18,16 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /tmp
 
-# Copy local source if available (supports both .tar and .tar.lz)
-COPY gnu-ed-source/ed-1.22.2.tar* /tmp/ 2>/dev/null || true
+# Copy local source (this will be included in Docker context)
+COPY gnu-ed-source/ed-1.22.2.tar /tmp/ed-1.22.2.tar
 
 # Build from local source if available, otherwise download
 RUN set -ex; \
-    if [ -f ed-1.22.2.tar ]; then \
+    if [ -f ed-1.22.2.tar ] && [ -s ed-1.22.2.tar ]; then \
         echo "✓ Building from local source (ed-1.22.2.tar)"; \
         tar -xf ed-1.22.2.tar; \
-    elif [ -f ed-1.22.2.tar.lz ]; then \
-        echo "✓ Building from local compressed source (ed-1.22.2.tar.lz)"; \
-        lzip -d ed-1.22.2.tar.lz && tar -xf ed-1.22.2.tar; \
     else \
-        echo "⚠ Local source not found, downloading from GNU mirror..."; \
+        echo "⚠ Local source not found or empty, downloading from GNU mirror..."; \
         wget https://ftp.gnu.org/gnu/ed/ed-1.22.2.tar.lz && \
         lzip -d ed-1.22.2.tar.lz && \
         tar -xf ed-1.22.2.tar; \
