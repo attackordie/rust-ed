@@ -440,6 +440,76 @@ report:
     @echo "📊 Detailed Coverage:"
     just test-coverage | tail -20
 
+# Install rust-ed on host system (replaces GNU ed)
+install-rust-ed: build
+    @echo "🦀 Installing rust-ed on host system"
+    @echo "===================================="
+    @echo ""
+    @# Check if GNU ed is already installed
+    @if [ -f /usr/bin/ed ] && [ ! -L /usr/bin/ed ]; then \
+        echo "📦 Backing up GNU ed to /usr/bin/ed.gnu"; \
+        sudo mv /usr/bin/ed /usr/bin/ed.gnu; \
+    elif [ -L /usr/bin/ed ]; then \
+        echo "⚠️  /usr/bin/ed is already a symlink - removing it"; \
+        sudo rm /usr/bin/ed; \
+    fi
+    @echo "🔧 Installing rust-ed to /usr/bin/ed"
+    @sudo cp target/x86_64-unknown-linux-musl/release/rust-ed /usr/bin/ed
+    @echo ""
+    @echo "✅ rust-ed installed successfully!"
+    @echo "   Location: /usr/bin/ed"
+    @echo "   Backup: /usr/bin/ed.gnu (if existed)"
+    @echo ""
+    @echo "Test with: echo -e 'a\\ntest\\n.\\np\\nq' | ed"
+
+# Restore GNU ed on host system (removes rust-ed)
+install-gnu-ed:
+    @echo "🐧 Restoring GNU ed on host system"
+    @echo "==================================="
+    @echo ""
+    @# Check if backup exists
+    @if [ ! -f /usr/bin/ed.gnu ]; then \
+        echo "❌ Error: GNU ed backup not found at /usr/bin/ed.gnu"; \
+        echo "   Cannot restore GNU ed without backup"; \
+        exit 1; \
+    fi
+    @echo "🔄 Removing rust-ed from /usr/bin/ed"
+    @sudo rm /usr/bin/ed
+    @echo "📦 Restoring GNU ed from backup"
+    @sudo mv /usr/bin/ed.gnu /usr/bin/ed
+    @echo ""
+    @echo "✅ GNU ed restored successfully!"
+    @echo "   Location: /usr/bin/ed"
+    @echo ""
+    @echo "Test with: echo -e 'a\\ntest\\n.\\np\\nq' | ed"
+
+# Show which ed is currently installed
+which-ed:
+    @echo "🔍 Checking which ed is installed"
+    @echo "=================================="
+    @echo ""
+    @if [ -L /usr/bin/ed ]; then \
+        echo "Type: Symlink"; \
+        echo "Target: $$(readlink -f /usr/bin/ed)"; \
+    elif [ -f /usr/bin/ed ]; then \
+        echo "Type: Regular file"; \
+        echo "Location: /usr/bin/ed"; \
+    else \
+        echo "Type: Not found"; \
+    fi
+    @echo ""
+    @if [ -f /usr/bin/ed.gnu ]; then \
+        echo "Backup: /usr/bin/ed.gnu exists (GNU ed backup)"; \
+    else \
+        echo "Backup: No backup found"; \
+    fi
+    @echo ""
+    @echo "Version check:"
+    @/usr/bin/ed --version 2>&1 | head -1 || echo "Cannot determine version"
+    @echo ""
+    @echo "File info:"
+    @file /usr/bin/ed 2>/dev/null || echo "File not found"
+
 # Help for rust-ed development
 help:
     @echo "rust-ed Development Guide"
@@ -469,5 +539,10 @@ help:
     @echo "Docker:"
     @echo "  just docker-build-all         # Build both GNU ed and rust-ed containers"
     @echo "  just docker-verify-drop-in    # Manual visual drop-in verification"
+    @echo ""
+    @echo "Host System Installation:"
+    @echo "  just install-rust-ed    # Replace GNU ed with rust-ed on host"
+    @echo "  just install-gnu-ed     # Restore GNU ed on host (removes rust-ed)"
+    @echo "  just which-ed           # Check which ed is currently installed"
     @echo ""
     @echo "The goal: 100% drop-in binary replacement for GNU ed"
