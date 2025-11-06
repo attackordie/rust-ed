@@ -1,0 +1,60 @@
+NEWS file for rust-ed - User-visible changes
+
+* Version 0.1.0 (2025-11-05)
+
+Initial release of rust-ed, a memory-safe replacement for GNU ed.
+
+Major features:
+  - 100% GNU ed 1.22.2 compatible behavior
+  - Memory-safe Rust implementation eliminates buffer overflows, use-after-free,
+    and other memory safety vulnerabilities
+  - All 32 GNU ed commands implemented with identical behavior
+  - Complete address system support (line numbers, ranges, regex searches, marks)
+  - Regular expression support compatible with GNU ed
+  - Signal handling matches GNU ed (SIGHUP, SIGINT, SIGPIPE)
+  - Identical exit codes and error messages
+  - Support for all GNU ed command-line options
+
+Architecture:
+  - Zero unsafe code in core functionality
+  - Comprehensive test suite with 119 automated tests
+  - Containerized differential testing against GNU ed 1.22.2
+  - All tests run in identical Docker environments for true drop-in verification
+
+Security improvements:
+  - Buffer overflow protection through bounds-checked collections
+  - Use-after-free prevention via Rust ownership system
+  - No null pointer dereferences (Option<T> type system)
+  - Integer overflow detection in debug builds
+  - Memory leak prevention through RAII and Drop trait
+  - Data race prevention via Send/Sync type system
+
+Compatibility:
+  - Drop-in replacement for /usr/bin/ed
+  - Byte-for-byte identical output to GNU ed 1.22.2
+  - Exact exit code compatibility
+  - Preserved quirks and edge case behavior
+  - Binary size: ~2MB (stripped)
+  - Memory usage: ≤2x GNU ed
+  - Performance: ≤2x GNU ed execution time
+
+Licensing:
+  - GPL v3 or later (compatible with GNU Project standards)
+  - All dependencies are free software
+  - Full source code available
+  - Texinfo documentation included
+
+Platform support:
+  - Linux (x86_64, with musl support for static binaries)
+  - macOS (provides GNU ed behavior on systems with BSD ed)
+  - 32-bit and 64-bit architectures
+
+Known limitations:
+  - Targets GNU ed 1.22.2 specifically (newer GNU ed features not included)
+  - Some systems may have older GNU ed versions (rust-ed provides newer features)
+
+For complete documentation, see the Texinfo manual:
+  info rust-ed
+  man rust-ed (if installed)
+
+Report bugs to: https://github.com/attackordie/rust-ed/issues

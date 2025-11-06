@@ -1,0 +1,201 @@
+.\" Man page for rust-ed
+.TH RUST-ED "1" "November 2025" "rust-ed 0.1.0" "User Commands"
+.SH NAME
+rust-ed \- memory-safe line-oriented text editor (GNU ed compatible)
+.SH SYNOPSIS
+.B rust-ed
+[\fI\,options\/\fR] [[\fI\,+line\/\fR] \fI\,file\/\fR]
+.SH DESCRIPTION
+rust-ed is a memory-safe, 100% drop-in replacement for GNU ed 1.22.2
+written in Rust. It is a line\-oriented text editor used to create, display,
+modify and otherwise manipulate text files, both interactively and via
+shell scripts.
+.PP
+rust-ed provides the exact same functionality as GNU ed while eliminating
+entire classes of memory safety vulnerabilities inherent in C implementations.
+It prevents buffer overflows, use-after-free errors, null pointer
+dereferences, and other memory-related bugs through Rust's ownership system
+and borrow checker.
+.PP
+The file name may be preceded by '+line', '+/RE', or '+?RE' to set the
+current line to the line number specified or to the first or last line
+matching the regular expression 'RE'.
+.PP
+The environment variable LINES can be used to set the initial window size.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+display this help and exit
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+output version information and exit
+.TP
+\fB\-E\fR, \fB\-\-extended\-regexp\fR
+use extended regular expressions
+.TP
+\fB\-G\fR, \fB\-\-traditional\fR
+run in compatibility mode
+.TP
+\fB\-l\fR, \fB\-\-loose\-exit\-status\fR
+exit with 0 status even if a command fails
+.TP
+\fB\-p\fR, \fB\-\-prompt\fR=\fI\,STRING\/\fR
+use STRING as an interactive prompt
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR, \fB\-\-silent\fR
+suppress diagnostics written to stderr
+.TP
+\fB\-r\fR, \fB\-\-restricted\fR
+run in restricted mode
+.TP
+\fB\-s\fR, \fB\-\-script\fR
+suppress byte counts and '!' prompt
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+be verbose; equivalent to the 'H' command
+.TP
+\fB\-\-strip\-trailing\-cr\fR
+strip carriage returns at end of text lines
+.TP
+\fB\-\-unsafe\-names\fR
+allow control characters in file names
+.PP
+Start edit by reading in 'file' if given.
+If 'file' begins with a '!', read output of shell command.
+.PP
+Exit status: 0 for a normal exit, 1 for environmental problems
+(invalid command\-line options, memory exhausted, command failed, etc),
+2 for problems with the input file (file not found, buffer modified,
+I/O errors), 3 for an internal consistency error (e.g., bug) which caused
+rust-ed to panic.
+.SH COMMANDS
+rust-ed implements all 32 commands from GNU ed 1.22.2 with identical
+behavior. Commands include:
+.PP
+.B Text insertion:
+a (append), i (insert), c (change)
+.PP
+.B Text deletion:
+d (delete)
+.PP
+.B Display:
+p (print), n (number), l (list), = (line number)
+.PP
+.B File operations:
+e (edit), E (edit unconditionally), f (filename),
+r (read), w (write), W (append), wq (write and quit)
+.PP
+.B Search and replace:
+/ (search forward), ? (search backward),
+s (substitute)
+.PP
+.B Global operations:
+g (global), v (inverse global),
+G (interactive global), V (interactive inverse global)
+.PP
+.B Line manipulation:
+m (move), t (copy), j (join)
+.PP
+.B Undo:
+u (undo)
+.PP
+.B Marks:
+k (mark), 'x (goto mark)
+.PP
+.B Cut/paste:
+y (yank), x (put)
+.PP
+.B Miscellaneous:
+z (scroll), ! (shell), # (comment),
+h (help), H (toggle help), P (toggle prompt),
+q (quit), Q (quit unconditionally)
+.SH MEMORY SAFETY
+rust-ed provides significant memory safety advantages over C implementations:
+.TP
+.B Buffer overflow protection
+All array and vector accesses are bounds-checked at runtime
+.TP
+.B Use-after-free prevention
+Rust's ownership system ensures references cannot outlive data
+.TP
+.B No null pointer dereferences
+Rust's Option<T> type system eliminates null pointer bugs
+.TP
+.B Memory leak prevention
+Automatic memory management through RAII and Drop trait
+.TP
+.B Integer overflow detection
+Explicit overflow checking in debug builds
+.TP
+.B Data race prevention
+Type system prevents concurrent unsafe data access
+.SH COMPATIBILITY
+rust-ed maintains 100% behavioral compatibility with GNU ed 1.22.2:
+.IP \(bu 2
+Byte-for-byte identical output
+.IP \(bu 2
+Exact exit code compatibility
+.IP \(bu 2
+All 32 commands implemented
+.IP \(bu 2
+Identical error messages
+.IP \(bu 2
+Drop-in replacement capability
+.SH TESTING
+rust-ed is verified through comprehensive differential testing:
+.IP \(bu 2
+119 automated test cases
+.IP \(bu 2
+Containerized testing in identical Docker environments
+.IP \(bu 2
+Tests cover all 32 commands and edge cases
+.IP \(bu 2
+Both implementations compared for exact behavior match
+.SH FILES
+.TP
+.I ~/.cargo/bin/rust-ed
+Default installation location (when installed via cargo)
+.TP
+.I /usr/local/bin/rust-ed
+Traditional installation location (manual install)
+.TP
+.I /usr/bin/ed
+System ed location (can be replaced with rust-ed)
+.TP
+.I ed.hup
+Recovery file created on hangup
+.TP
+.I $HOME/ed.hup
+Alternative recovery file location
+.SH "REPORTING BUGS"
+Report bugs to: https://github.com/attackordie/rust-ed/issues
+.SH COPYRIGHT
+Copyright \(co 2025 Brian Boynton, MD.
+.br
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.PP
+Based on GNU ed by Andrew L. Moore, François Pinard, and Antonio Diaz Diaz.
+.SH "SEE ALSO"
+.BR ed (1),
+.BR sed (1),
+.BR vi (1),
+.BR regex (7)
+.PP
+The full documentation for
+.B rust-ed
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B rust-ed
+programs are properly installed at your site, the command
+.IP
+.B info rust-ed
+.PP
+should give you access to the complete manual.
+.PP
+Online documentation:
+.br
+https://github.com/attackordie/rust-ed

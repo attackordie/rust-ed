@@ -1,0 +1,79 @@
+Authors of rust-ed
+==================
+
+rust-ed is a memory-safe replacement for GNU ed 1.22.2 written in Rust.
+
+Primary Author and Maintainer:
+-------------------------------
+
+Brian Boynton, MD <brian@example.org>
+  - Project creator and lead developer
+  - All core implementation (October 2025 - present)
+  - Complete Rust translation of GNU ed functionality
+  - Differential testing framework design
+  - Memory safety architecture
+  - GNU standards compliance implementation
+
+
+Based on GNU ed by:
+-------------------
+
+Andrew L. Moore
+  - Original GNU ed author
+
+François Pinard
+  - GNU ed contributor
+
+Antonio Diaz Diaz
+  - GNU ed maintainer (ed 1.22.2)
+
+
+Inspired by:
+------------
+
+Ken Thompson and Dennis Ritchie
+  - Original Unix ed (1969)
+  - The foundation upon which GNU ed was built
+
+
+GNU ed Source Reference:
+------------------------
+
+rust-ed maintains 100% behavioral compatibility with GNU ed 1.22.2.
+The C source code from GNU ed 1.22.2 served as the definitive reference
+for behavior verification and implementation correctness.
+
+GNU ed is available at: https://www.gnu.org/software/ed/
+
+
+Acknowledgments:
+----------------
+
+This project stands on the shoulders of giants:
+  - The original Unix ed creators
+  - The GNU ed maintainers
+  - The Rust programming language team
+  - The free software community
+
+rust-ed would not be possible without their foundational work.
+
+
+Contributing:
+-------------
+
+Contributions are welcome! Please see the project repository for
+contribution guidelines:
+
+  https://github.com/attackordie/rust-ed
+
+All contributors will be acknowledged in the THANKS file.
+
+
+Copyright:
+----------
+
+rust-ed: Copyright (C) 2025 Brian Boynton, MD
+GNU ed:  Copyright (C) 1993, 1994, 2006-2025 Free Software Foundation, Inc.
+
+Both are free software under the GNU General Public License.
+See the file COPYING for license details.

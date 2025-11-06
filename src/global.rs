@@ -1,7 +1,25 @@
-/// Global command routines - Safe Rust implementation 
+// rust-ed - Memory-safe replacement for GNU ed
+// Copyright (C) 2025 Brian Boynton, MD
+//
+// This file is part of rust-ed.
+//
+// rust-ed is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// rust-ed is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with rust-ed.  If not, see <https://www.gnu.org/licenses/>.
+
+/// Global command routines - Safe Rust implementation
 /// This file provides the same functionality as global.c but with memory safety
 /// C source: global.c (96 lines, 3,084 bytes) - IMMUTABLE REFERENCE
-/// 
+///
 /// 🔒 MEMORY SAFETY: Converted from C raw pointers to safe Rust collections
 /// The original C code uses manual memory management for a dynamic array of line_node pointers.
 /// Our Rust version uses line indices with Vec<Option<usize>> for identical functionality.

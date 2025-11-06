@@ -1,0 +1,120 @@
+Thanks to contributors of rust-ed
+==================================
+
+rust-ed has been made possible by the work of many individuals and projects.
+
+
+Direct Contributors:
+--------------------
+
+(This section will be updated as contributions are received)
+
+We welcome contributions! See AUTHORS for how to contribute.
+
+
+Inspiration and Foundations:
+-----------------------------
+
+Ken Thompson
+  For creating the original Unix ed editor in 1969, establishing the
+  foundation of line-oriented text editing and developing regular
+  expression support for text manipulation.
+
+Dennis Ritchie
+  For co-creating Unix with Ken Thompson, providing the operating system
+  environment that made ed the standard text editor.
+
+Andrew L. Moore
+  For creating GNU ed and bringing ed into the free software world.
+
+François Pinard
+  For contributions to GNU ed development.
+
+Antonio Diaz Diaz
+  For maintaining GNU ed and releasing version 1.22.2, which rust-ed
+  targets for complete compatibility.
+
+
+Tools and Technologies:
+-----------------------
+
+The Rust Programming Language Team
+  For creating Rust and its safety-first approach to systems programming,
+  making memory-safe ed possible.
+
+The Rust Community
+  For excellent crates that rust-ed depends on:
+  - clap: Command-line argument parsing
+  - regex: POSIX-compatible regular expressions
+  - thiserror: Error handling
+  - nix: POSIX signal handling
+
+The Free Software Foundation
+  For the GNU Project, GNU coding standards, and the GPL license that
+  ensures software freedom.
+
+Docker
+  For containerization technology that enables reliable differential testing.
+
+
+Bug Reports and Testing:
+-------------------------
+
+(This section will be updated as bug reports are received)
+
+We appreciate all bug reports and testing feedback!
+Report bugs at: https://github.com/attackordie/rust-ed/issues
+
+
+Documentation and Standards:
+-----------------------------
+
+GNU Coding Standards
+  For providing clear guidelines on creating GNU-compatible software.
+
+The GNU ed Manual Authors
+  For comprehensive documentation that aided in understanding ed's behavior.
+
+
+Special Thanks:
+---------------
+
+The Boynton Family
+  For their unwavering support and patience during the development of
+  rust-ed. Your encouragement made this project possible.
+
+Darrin Taylor
+  For insisting that the Rust version be reviewable side-by-side with the
+  GNU C version. This design principle led to the immutable reference
+  structure and systematic C-to-Rust translation methodology that ensures
+  100% compatibility.
+
+Cameron Míċeál Tyre
+  For recommending the project name change from "ed-rust" to "rust-ed",
+  which better follows Rust community naming conventions and GNU package
+  naming patterns.
+
+The Linux and BSD Communities
+  For maintaining ed in various distributions and keeping the tradition
+  of standard Unix tools alive.
+
+
+Educational Resources:
+----------------------
+
+Brian W. Kernighan and P. J. Plauger
+  "Software Tools in Pascal" (Addison-Wesley, 1981)
+  The algorithm upon which both GNU ed and rust-ed are based.
+
+The Unix Programming Environment
+  For documenting the Unix philosophy and ed usage patterns.
+
+
+---
+
+If we have overlooked anyone who contributed to rust-ed, please let us
+know so we can add proper acknowledgment.
+
+All contributors are valued members of the free software community.
+
+Thank you!

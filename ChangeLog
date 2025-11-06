@@ -1,0 +1,135 @@
+ChangeLog for rust-ed
+
+2025-11-05  Brian Boynton, MD  <brian@example.org>
+
+	* GNU Standards Compliance: Complete licensing and documentation
+
+	* COPYING: Added GNU GPL v3 license text
+	* NEWS: Created user-visible changes file for version 0.1.0
+	* AUTHORS: Created primary author listing
+	* THANKS: Created contributors acknowledgment file
+	* INSTALL: Created detailed installation instructions
+
+	* doc/rust-ed.texi: Created Texinfo manual based on GNU ed structure
+	* doc/fdl.texi: Copied GNU Free Documentation License
+
+	* Cargo.toml (license): Changed from "MIT OR Apache-2.0" to "GPL-3.0-or-later"
+
+	* src/*.rs: Added GPL v3 copyright headers to all source files:
+	  - src/main.rs: Main entry point
+	  - src/buffer.rs: Line buffer management
+	  - src/main_loop.rs: Command execution loop
+	  - src/error.rs: Error handling
+	  - src/io.rs: File I/O operations
+	  - src/global.rs: Global command implementation
+	  - src/regex.rs: Regular expression interface
+	  - src/signal.rs: Signal handling
+	  - src/carg_parser.rs: Argument parser
+
+	* docs/GNU-STANDARDS-COMPLIANCE.md: Created compliance tracking document
+
+2025-10-29  Brian Boynton, MD  <brian@example.org>
+
+	* Project Restructuring: Implemented modular differential testing
+
+	* tests/differential_containerized.rs: Main test runner with 119 tests
+	* tests/common/suites/: Created 27 test suite files (one per command)
+	  - cmd_append.rs, cmd_change.rs, cmd_delete.rs, cmd_insert.rs
+	  - cmd_print.rs, cmd_quit.rs, cmd_edit.rs, cmd_filename.rs
+	  - cmd_read.rs, cmd_write.rs, cmd_list.rs, cmd_number.rs
+	  - cmd_equals.rs, cmd_move.rs, cmd_copy.rs, cmd_join.rs
+	  - cmd_substitute.rs, cmd_global.rs, cmd_undo.rs, cmd_mark.rs
+	  - cmd_yank.rs, cmd_put.rs, cmd_scroll.rs, cmd_shell.rs
+	  - cmd_comment.rs, cmd_newline.rs, cmd_help.rs
+
+	* tests/README.md: Documented test structure and organization
+	* docs/modular-differential-testing-framework.md: Framework guide
+
+2025-10-28  Brian Boynton, MD  <brian@example.org>
+
+	* Docker Testing Infrastructure: Set up containerized testing
+
+	* docker/Dockerfile.gnu-ed: GNU ed 1.22.2 reference container
+	* docker/Dockerfile.rust-ed: rust-ed test container
+	* docker/Dockerfile.test-runner: Automated test runner
+
+	* gnu-ed-source/ed-1.22.2/: Added GNU ed source for reference
+	* gnu-ed-source/VERSION.txt: Documented target version
+
+2025-10-15  Brian Boynton, MD  <brian@example.org>
+
+	* Core Implementation: All 32 GNU ed commands
+
+	* src/main_loop.rs (main_loop): Main command execution loop
+	* src/main_loop.rs (execute_*_command): All 32 command implementations
+	  - execute_append_command: 'a' command
+	  - execute_change_command: 'c' command
+	  - execute_delete_command: 'd' command
+	  - execute_insert_command: 'i' command
+	  - execute_print_command: 'p' command
+	  - execute_list_command: 'l' command
+	  - execute_number_command: 'n' command
+	  - execute_equals_command: '=' command
+	  - execute_edit_command: 'e' and 'E' commands
+	  - execute_filename_command: 'f' command
+	  - execute_read_command: 'r' command
+	  - execute_write_command: 'w', 'W', 'wq' commands
+	  - execute_quit_command: 'q' and 'Q' commands
+	  - execute_substitute_command: 's' command with all flags
+	  - execute_global_command: 'g' and 'v' commands
+	  - execute_interactive_global_command: 'G' and 'V' commands
+	  - execute_move_command: 'm' command
+	  - execute_copy_command: 't' command
+	  - execute_join_command: 'j' command
+	  - execute_undo_command: 'u' command
+	  - execute_mark_command: 'k' command
+	  - execute_yank_command: 'y' command
+	  - execute_put_command: 'x' command
+	  - execute_scroll_command: 'z' command
+	  - execute_shell_command: '!' command
+	  - execute_help_command: 'h' and 'H' commands
+	  - execute_prompt_command: 'P' command
+	  - execute_comment_command: '#' command
+	  - execute_newline_command: newline command
+
+	* src/buffer.rs (EdBuffer): Line buffer with undo support
+	* src/buffer.rs (push_undo_state): Undo stack management
+	* src/buffer.rs (clear_undo_stack): Undo stack clearing (GNU ed behavior)
+
+	* src/io.rs (read_file): File reading with proper newline handling
+	* src/io.rs (write_file): File writing with atomic operations
+	* src/io.rs (read_shell_output): Shell command execution
+	* src/io.rs (write_to_shell): Pipe to shell commands
+
+	* src/regex.rs (compile_regex): Regular expression compilation
+	* src/regex.rs (find_matching_line): Pattern matching with wrapping
+	* src/regex.rs (is_case_insensitive_match): Case-insensitive support
+
+	* src/global.rs (execute_global): Global command implementation
+	* src/global.rs (mark_matching_lines): Two-pass global algorithm
+
+	* src/signal.rs (setup_signal_handlers): POSIX signal handling
+	* src/signal.rs (handle_sigint): Interrupt handling
+	* src/signal.rs (handle_sighup): Hangup handling with ed.hup recovery
+
+2025-10-01  Brian Boynton, MD  <brian@example.org>
+
+	* Initial Project Setup
+
+	* Cargo.toml: Created project with dependencies
+	  - clap 4.4: Command-line argument parsing
+	  - regex 1.10: POSIX-compatible regular expressions
+	  - thiserror 1.0: Error handling
+	  - nix 0.27: POSIX signal handling
+
+	* src/main.rs: Program entry point and global flags
+	* src/error.rs: GNU ed compatible error types
+	* src/buffer.rs: Line buffer data structure
+	* src/carg_parser.rs: POSIX/GNU argument parser
+
+	* README.md: Project documentation
+	* CLAUDE.md: Project instructions for Claude Code
+	* PRD.md: Product requirements document
+
+	* .gitignore: Configured for Rust project
+	* Justfile: Build and test automation commands

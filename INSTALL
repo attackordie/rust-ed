@@ -1,0 +1,217 @@
+Installation Instructions for rust-ed
+======================================
+
+rust-ed is a memory-safe replacement for GNU ed written in Rust.
+
+Basic Installation
+==================
+
+Prerequisites
+-------------
+
+Required:
+  * Rust 1.70 or later
+  * Cargo (included with Rust)
+  * C compiler (for some dependencies)
+
+Optional:
+  * Docker (for running tests)
+  * Just command runner (for convenience commands)
+  * texinfo (for building documentation)
+
+Installing Rust
+---------------
+
+If you don't have Rust installed:
+
+  $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  $ source $HOME/.cargo/env
+
+Or visit: https://rustup.rs/
+
+Building from Source
+====================
+
+1. Extract the distribution tarball:
+
+  $ tar xzf rust-ed-0.1.0.tar.gz
+  $ cd rust-ed-0.1.0
+
+2. Build the release binary:
+
+  $ cargo build --release
+
+   The binary will be at: target/release/rust-ed
+
+3. (Optional) Run the test suite:
+
+  $ cargo test
+
+4. Install to your system:
+
+  Option A: Using Cargo install
+  $ cargo install --path .
+
+  This installs to ~/.cargo/bin/rust-ed
+  Add ~/.cargo/bin to your PATH if not already present.
+
+  Option B: Manual installation
+  $ sudo cp target/release/rust-ed /usr/local/bin/rust-ed
+
+  Or to replace system ed:
+  $ sudo mv /usr/bin/ed /usr/bin/ed.gnu.backup
+  $ sudo cp target/release/rust-ed /usr/bin/ed
+
+Platform-Specific Instructions
+===============================
+
+Linux
+-----
+
+Standard build:
+  $ cargo build --release
+
+Static musl build (for maximum portability):
+  $ rustup target add x86_64-unknown-linux-musl
+  $ cargo build --release --target x86_64-unknown-linux-musl
+
+The musl binary is at: target/x86_64-unknown-linux-musl/release/rust-ed
+
+This binary is statically linked and will run on any Linux system without
+requiring specific system libraries.
+
+macOS
+-----
+
+Build natively:
+  $ cargo build --release
+
+Note: macOS ships with BSD ed, not GNU ed. rust-ed provides GNU ed 1.22.2
+behavior on macOS systems.
+
+Installation Directories
+========================
+
+By default:
+  Binary:        ~/.cargo/bin/rust-ed  (with 'cargo install')
+  Source:        Current directory
+  Documentation: doc/rust-ed.texi (source), target/doc/ (rustdoc)
+
+Traditional GNU installation directories (when using 'make install'):
+  Prefix:        /usr/local
+  Binary:        /usr/local/bin
+  Manual:        /usr/local/share/man/man1
+  Info:          /usr/local/share/info
+  Documentation: /usr/local/share/doc/rust-ed
+
+Configuration Options
+=====================
+
+Build profiles:
+
+  Debug build (unoptimized, with debug symbols):
+  $ cargo build
+
+  Release build (optimized for size):
+  $ cargo build --release
+
+  The release profile is configured for minimal binary size while
+  maintaining compatibility with GNU ed.
+
+Environment variables:
+
+  RUSTFLAGS    - Additional compiler flags
+  CC           - C compiler to use (for dependencies)
+  CARGO_HOME   - Cargo installation directory (default: ~/.cargo)
+
+Testing
+=======
+
+Run all tests:
+  $ cargo test
+
+Run specific test suites:
+  $ cargo test --test differential_containerized
+
+Run tests with output:
+  $ cargo test -- --nocapture
+
+Containerized differential testing (requires Docker):
+  $ docker build -f docker/Dockerfile.gnu-ed -t gnu-ed:latest .
+  $ docker build -f docker/Dockerfile.rust-ed -t rust-ed:latest .
+  $ cargo test --test differential_containerized
+
+Documentation
+=============
+
+Building Info documentation (requires texinfo):
+  $ cd doc
+  $ makeinfo rust-ed.texi
+  $ sudo cp rust-ed.info /usr/local/share/info/
+  $ sudo install-info /usr/local/share/info/rust-ed.info /usr/local/share/info/dir
+
+Building HTML documentation:
+  $ cd doc
+  $ makeinfo --html rust-ed.texi
+
+Building PDF documentation:
+  $ cd doc
+  $ makeinfo --pdf rust-ed.texi
+
+Building Rust API documentation:
+  $ cargo doc --open
+
+Uninstallation
+==============
+
+If installed with cargo:
+  $ cargo uninstall rust-ed
+
+If installed manually:
+  $ sudo rm /usr/local/bin/rust-ed
+  $ sudo rm /usr/local/share/info/rust-ed.info
+  $ sudo rm /usr/local/share/man/man1/rust-ed.1
+
+To restore GNU ed (if backed up):
+  $ sudo mv /usr/bin/ed.gnu.backup /usr/bin/ed
+
+Troubleshooting
+===============
+
+Build fails with linker errors:
+  - Ensure you have a C compiler installed (gcc or clang)
+  - On Debian/Ubuntu: sudo apt install build-essential
+  - On Fedora/RHEL: sudo dnf install gcc
+
+Cargo not found:
+  - Ensure ~/.cargo/bin is in your PATH
+  - Run: source $HOME/.cargo/env
+
+Tests fail:
+  - Ensure Docker is running (for containerized tests)
+  - Check that gnu-ed and rust-ed Docker images are built
+  - Try: docker images | grep ed
+
+Permission denied during installation:
+  - Use sudo for system-wide installation
+  - Or install to ~/.cargo/bin (no sudo required)
+
+Binary too large:
+  - The release build is optimized for size (~2MB stripped)
+  - Run: strip target/release/rust-ed
+  - Or let cargo do it automatically (already configured)
+
+Further Information
+===================
+
+Project repository: https://github.com/attackordie/rust-ed
+Bug reports:        https://github.com/attackordie/rust-ed/issues
+Documentation:      info rust-ed  (after installing Info docs)
+                    doc/rust-ed.texi (source)
+
+For questions about GNU ed behavior, see:
+  GNU ed manual: https://www.gnu.org/software/ed/manual/
+
+For questions about Rust, see:
+  Rust book: https://doc.rust-lang.org/book/
+  Rust by example: https://doc.rust-lang.org/rust-by-example/
