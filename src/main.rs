@@ -111,6 +111,11 @@ pub fn traditional() -> bool {
     TRADITIONAL.load(Ordering::Relaxed)
 }
 
+/// quiet - check if quiet mode is enabled
+pub fn quiet() -> bool {
+    QUIET.load(Ordering::Relaxed)
+}
+
 /// prompt_on - check if prompt is enabled
 pub fn prompt_on() -> bool {
     PROMPT_ON.load(Ordering::Relaxed)
@@ -291,13 +296,21 @@ fn main() {
             buffer.set_filename(fname.clone());
             
             // Call first_e_command equivalent
+            // GNU ed behavior: missing files print error to stderr but don't exit
             match buffer.load_file(&fname) {
                 Ok(bytes_read) => {
+                    // File exists (even if empty) - print byte count
                     if !scripted() {
                         println!("{}", bytes_read);
                     }
                 },
+                Err(EdError::FileNotFound) => {
+                    // File doesn't exist - already printed to stderr in load_file
+                    // GNU ed: don't print byte count, don't exit, continue with empty buffer
+                    // Do nothing - just continue to main_loop
+                },
                 Err(_) => {
+                    // Real I/O errors (not just missing file)
                     initial_error = true;
                     if !interactive() {
                         process::exit(2);

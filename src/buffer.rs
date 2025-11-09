@@ -644,25 +644,44 @@ impl EdBuffer {
     }
     
     /// Load file into buffer - matches GNU ed file reading behavior
+    /// Returns Ok(bytes_read) on success, Err for I/O errors (NOT for missing files)
+    /// For missing files, prints to stderr and returns Ok with special marker
     pub fn load_file(&mut self, filename: &str) -> Result<usize, EdError> {
         use std::fs;
         use std::io::{BufRead, BufReader};
-        
+
         // Try to open file
         let file = match fs::File::open(filename) {
             Ok(f) => f,
-            Err(_) => return Err(EdError::InvalidAddress), // GNU ed behavior for missing files
+            Err(e) => {
+                // GNU ed behavior: print error to stderr but continue with empty buffer
+                // GNU ed io.c:299 - show_strerror() prints: "filename: strerror(errno)"
+                if !crate::quiet() {
+                    // Format error message to match GNU ed exactly
+                    // GNU ed uses strerror() which produces "No such file or directory"
+                    // Rust's io::Error::to_string() adds " (os error 2)"
+                    use std::io::ErrorKind;
+                    let error_msg = match e.kind() {
+                        ErrorKind::NotFound => "No such file or directory",
+                        _ => "Cannot open input file",
+                    };
+                    eprintln!("{}: {}", filename, error_msg);
+                }
+                // Return error to indicate file doesn't exist
+                // Main.rs should NOT print byte count and should NOT exit
+                return Err(EdError::FileNotFound);
+            }
         };
-        
+
         // Clear existing buffer
         self.lines.clear();
         self.current_addr_ = 0;
         self.last_addr_ = 0;
-        
+
         // Read file line by line
         let reader = BufReader::new(file);
         let mut total_bytes = 0;
-        
+
         for line_result in reader.lines() {
             match line_result {
                 Ok(line) => {
@@ -672,11 +691,11 @@ impl EdBuffer {
                 Err(_) => return Err(EdError::InvalidAddress),
             }
         }
-        
+
         // Set current line to last line (GNU ed behavior)
         self.last_addr_ = self.lines.len();
         self.current_addr_ = self.last_addr_;
-        
+
         Ok(total_bytes)
     }
     

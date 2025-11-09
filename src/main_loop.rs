@@ -1362,9 +1362,10 @@ pub fn execute_write_command(buffer: &mut EdBuffer, command_args: &str, addresse
         Ok(_bytes) => {
             // io::write_file already prints byte count
 
-            // If we wrote the entire buffer to the default filename, mark buffer as unmodified
-            // GNU ed behavior: writing full buffer to default file clears modified flag
+            // If we wrote the entire buffer, mark buffer as unmodified
+            // GNU ed behavior: writing full buffer to ANY file clears modified flag
             // GNU ed main_loop.c:708: if( addr == last_addr() && fnp[0] != '!' ) set_modified( false );
+            // Note: GNU ed doesn't check if filename matches - ANY full buffer write clears modified!
             // For empty buffer: writing 0,0 IS writing the entire buffer!
             let wrote_entire_buffer = if buffer.len() == 0 {
                 // Empty buffer: 0,0 is the entire buffer
@@ -1374,10 +1375,9 @@ pub fn execute_write_command(buffer: &mut EdBuffer, command_args: &str, addresse
                 first_addr == 1 && second_addr == buffer.len()
             };
 
-            if !append &&
-               wrote_entire_buffer &&
-               !target_filename.starts_with('!') &&
-               (filename.is_empty() || filename == get_filename_from_buffer(buffer).unwrap_or("")) {
+            // GNU ed logic: mark unmodified if wrote entire buffer and not shell command
+            // This is true even if writing to a different filename!
+            if wrote_entire_buffer && !target_filename.starts_with('!') {
                 buffer.set_modified(false);
             }
 

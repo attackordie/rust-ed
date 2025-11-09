@@ -60,21 +60,44 @@ impl EdDifferentialTester {
 
         println!("[{}/∞] Running: {}", self.test_count, test_case.name);
 
-        // Create temp file with input
-        let mut temp_file = NamedTempFile::new().expect("Failed to create temp file");
-        temp_file.write_all(test_case.input_text.as_bytes()).expect("Failed to write temp file");
-        let temp_path = temp_file.path().to_path_buf();
+        // Handle file creation based on test_case.file_should_not_exist
+        let (temp_path, _temp_file_guard) = if test_case.file_should_not_exist {
+            // For non-existent file tests: create temp file but delete it before running ed
+            // We need to create it first so we have a valid path in a writable directory
+            let temp_file = NamedTempFile::new().expect("Failed to create temp file");
+            let temp_path = temp_file.path().to_path_buf();
+            // Delete the file but keep the path
+            std::mem::drop(temp_file);  // This deletes the file
+            (temp_path, None)
+        } else {
+            // Create temp file with input (existing behavior)
+            let mut temp_file = NamedTempFile::new().expect("Failed to create temp file");
+            temp_file.write_all(test_case.input_text.as_bytes()).expect("Failed to write temp file");
+            let temp_path = temp_file.path().to_path_buf();
+            // Keep temp_file alive so it doesn't get deleted
+            (temp_path, Some(temp_file))
+        };
 
         // Run GNU ed in isolated container
         let gnu_output = self.run_gnu_ed_container(&test_case.commands, &temp_path);
         let gnu_final = fs::read_to_string(&temp_path).unwrap_or_default();
 
         // Reset file for Rust test
-        fs::write(&temp_path, &test_case.input_text).expect("Failed to reset temp file");
+        if test_case.file_should_not_exist {
+            // Delete the file if it was created, so rust-ed gets the same non-existent state
+            let _ = fs::remove_file(&temp_path);
+        } else {
+            fs::write(&temp_path, &test_case.input_text).expect("Failed to reset temp file");
+        }
 
         // Run rust-ed in isolated container (SYMMETRIC - identical environment)
         let rust_output = self.run_rust_ed_container(&test_case.commands, &temp_path);
         let rust_final = fs::read_to_string(&temp_path).unwrap_or_default();
+
+        // Cleanup temp file if needed
+        if test_case.file_should_not_exist {
+            let _ = fs::remove_file(&temp_path);
+        }
 
         // Compare everything - build failure record
         let mut failure = TestFailure {
@@ -132,12 +155,17 @@ impl EdDifferentialTester {
 
     /// Run GNU ed in isolated Docker container
     fn run_gnu_ed_container(&self, commands: &str, file_path: &std::path::Path) -> Output {
+        // Get the parent directory and filename
+        let parent_dir = file_path.parent().unwrap_or_else(|| std::path::Path::new("/tmp"));
+        let filename = file_path.file_name().unwrap().to_str().unwrap();
+        let container_path = format!("/tmp/{}", filename);
+
         Command::new("docker")
             .args(&["run", "--rm", "-i"])
             .args(&["--user", "1000:1000"])  // Run as host user to allow file writes
-            .args(&["-v", &format!("{}:/tmp/test.txt", file_path.display())])
+            .args(&["-v", &format!("{}:/tmp", parent_dir.display())])
             .arg(&self.gnu_ed_container)
-            .arg("/tmp/test.txt")
+            .arg(&container_path)
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
@@ -157,12 +185,17 @@ impl EdDifferentialTester {
 
     /// Run rust-ed in isolated Docker container (SYMMETRIC with GNU ed)
     fn run_rust_ed_container(&self, commands: &str, file_path: &std::path::Path) -> Output {
+        // Get the parent directory and filename
+        let parent_dir = file_path.parent().unwrap_or_else(|| std::path::Path::new("/tmp"));
+        let filename = file_path.file_name().unwrap().to_str().unwrap();
+        let container_path = format!("/tmp/{}", filename);
+
         Command::new("docker")
             .args(&["run", "--rm", "-i"])
             .args(&["--user", "1000:1000"])  // Run as host user to allow file writes
-            .args(&["-v", &format!("{}:/tmp/test.txt", file_path.display())])
+            .args(&["-v", &format!("{}:/tmp", parent_dir.display())])
             .arg(&self.rust_ed_container)
-            .arg("/tmp/test.txt")
+            .arg(&container_path)
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
@@ -526,6 +559,15 @@ fn test_containerized_cmd_help() {
     let mut tester = EdDifferentialTester::new();
     println!("🐳 Testing help command (h, H) - containerized");
     tester.run_test_suites(&["cmd_help"]);
+}
+
+/// Test file creation behavior
+/// Tests launching ed with non-existent files
+#[test]
+fn test_containerized_file_creation() {
+    let mut tester = EdDifferentialTester::new();
+    println!("🐳 Testing file creation behavior - containerized");
+    tester.run_test_suites(&["file_creation"]);
 }
 
 /// Test only basic commands (LEGACY - for backward compatibility)

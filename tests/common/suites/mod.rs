@@ -38,8 +38,9 @@ pub mod cmd_write;       // w,W - write to file
 pub mod cmd_yank;        // y - yank lines to buffer
 
 // Supporting test suites
-pub mod addressing;      // Address parsing (%, $, ., etc.)
+pub mod addressing;       // Address parsing (%, $, ., etc.)
 pub mod error_conditions; // Error handling tests
+pub mod file_creation;    // File creation behavior (Cameron's bug report)
 
 use crate::common::{TestCase, TestSuite};
 
@@ -77,6 +78,7 @@ pub fn get_all_test_suites() -> Vec<TestSuite> {
         // Supporting suites
         addressing::get_test_suite(),
         error_conditions::get_test_suite(),
+        file_creation::get_test_suite(),
     ]
 }
 

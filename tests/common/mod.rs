@@ -18,17 +18,36 @@ pub struct TestCase {
     pub commands: String,
 
     /// Initial file content before commands are run
+    /// If empty string "", the file will not be created (tests non-existent file behavior)
     pub input_text: String,
+
+    /// If true, the test file should NOT exist when ed is launched
+    /// Used for testing "ed newfilename" where newfilename doesn't exist
+    /// Default: false (file exists with input_text content)
+    pub file_should_not_exist: bool,
 }
 
 impl TestCase {
-    /// Create a new test case
+    /// Create a new test case with existing file
     pub fn new(name: &str, category: &str, commands: &str, input_text: &str) -> Self {
         Self {
             name: name.to_string(),
             category: category.to_string(),
             commands: commands.to_string(),
             input_text: input_text.to_string(),
+            file_should_not_exist: false,
+        }
+    }
+
+    /// Create a test case where the file does NOT exist at launch
+    /// Used for Cameron's bug: "ed newfilename" where newfilename doesn't exist
+    pub fn new_nonexistent_file(name: &str, category: &str, commands: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            category: category.to_string(),
+            commands: commands.to_string(),
+            input_text: String::new(),
+            file_should_not_exist: true,
         }
     }
 }

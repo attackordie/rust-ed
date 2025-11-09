@@ -47,6 +47,9 @@ pub enum EdError {
     #[error("?")]  // GNU ed: Warning - buffer modified (first quit attempt)
     WarningUnsavedChanges,
 
+    #[error("")]  // File not found - NOT a fatal error in GNU ed
+    FileNotFound,
+
     #[error("")]  // Quit is not an error, just a control flow
     Quit,
 }
@@ -64,6 +67,7 @@ impl EdError {
             EdError::NothingToPut => 1,
             EdError::PatternNotFound => 1,
             EdError::WarningUnsavedChanges => 1,  // Exit code 1 to indicate error
+            EdError::FileNotFound => 0,  // Not a fatal error - GNU ed continues
             EdError::Quit => 0,
         }
     }

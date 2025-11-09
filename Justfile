@@ -344,6 +344,13 @@ test-help:
     @just docker-build-all
     cargo test --test differential_containerized test_containerized_cmd_help -- --nocapture
 
+# Test file creation behavior (non-existent files)
+test-file-creation:
+    @echo "🎯 Testing FILE CREATION (non-existent files) - containerized"
+    @echo "=============================================================="
+    @just docker-build-all
+    cargo test --test differential_containerized test_containerized_file_creation -- --nocapture
+
 # Quick test - runs most common editing commands
 test-quick:
     @echo "⚡ Quick Test - Common Commands (d, w, a, p)"
