@@ -90,9 +90,11 @@ Darrin Taylor
   100% compatibility.
 
 Cameron Míċeál Tyre
-  For recommending the project name change from "ed-rust" to "rust-ed",
-  which better follows Rust community naming conventions and GNU package
-  naming patterns.
+  For tireless efforts in reporting and solving installation issues on
+  macOS, including diagnosing persistent Cargo cache issues that affected
+  the build process. His detailed bug reports and testing on multiple
+  platforms (MacBook and Android/Pixel) helped improve the build reliability
+  and cross-platform compatibility of rust-ed.
 
 The Linux and BSD Communities
   For maintaining ed in various distributions and keeping the tradition

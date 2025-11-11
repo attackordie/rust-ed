@@ -17,7 +17,7 @@
 // along with rust-ed.  If not, see <https://www.gnu.org/licenses/>.
 
 /// GNU ed main entry point - Rust translation
-/// This file matches main.c structure exactly for human review
+/// This file matches main.c structure for human review
 /// C source: main.c (12,515 bytes) - IMMUTABLE REFERENCE
 ///
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -173,12 +173,12 @@ fn show_help() {
     println!("General help using GNU software: http://www.gnu.org/gethelp");
 }
 
-/// show_version - matches main.c:109  
+/// show_version - matches main.c:109
 fn show_version() {
-    println!("GNU {} {}", PROGRAM_NAME, "1.22.2-rust");
-    println!("Copyright (C) 1994 Andrew L. Moore.");
-    println!("Copyright (C) {} Antonio Diaz Diaz.", PROGRAM_YEAR);
-    println!("License GPLv2+: GNU GPL version 2 or later <http://gnu.org/licenses/gpl.html>");
+    println!("rust-ed {} (GNU ed 1.22.2 compatible)", "1.22.2-rust");
+    println!("Copyright (C) {} Brian Boynton, MD.", PROGRAM_YEAR);
+    println!("Based on GNU ed - Copyright (C) 1994 Andrew L. Moore, 2006-2025 Free Software Foundation, Inc.");
+    println!("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>");
     println!("This is free software: you are free to change and redistribute it.");
     println!("There is NO WARRANTY, to the extent permitted by law.");
 }
